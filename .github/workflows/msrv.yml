@@ -1,0 +1,40 @@
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      event_name:
+        required: false
+        type: string
+      args:
+        required: false
+        type: string
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
+  RUSTUP_MAX_RETRIES: 10
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@cargo-hack
+      # Make sure this crate can be built with MSRV and all later versions.
+      # However, this takes time, so for PR, set the version interval.
+      - run: cargo hack build --workspace --ignore-private --no-dev-deps --version-range .. ${{ inputs.args }}
+        if: inputs.event_name != 'pull_request'
+      - run: cargo hack build --workspace --ignore-private --no-dev-deps --version-range .. --version-step 2 ${{ inputs.args }}
+        if: inputs.event_name == 'pull_request'
