@@ -38,4 +38,4 @@ jobs:
       - uses: taiki-e/install-action@cargo-deny
       # Workaround for https://github.com/EmbarkStudios/cargo-deny/issues/413
       - run: cargo hack --remove-dev-deps --workspace
-      - run: cargo deny --workspace --all-features check --config .deny.toml ${{ inputs.args }}
+      - run: cargo deny --workspace --all-features ${{ inputs.args }} check --config .deny.toml
