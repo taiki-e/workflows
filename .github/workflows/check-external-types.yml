@@ -49,6 +49,6 @@ jobs:
           path: ${{ runner.tool_cache }}/cargo-check-external-types/bin
           key: cargo-check-external-types-bin-${{ hashFiles('.github/caching/cargo-check-external-types.lock') }}
       - name: Install cargo-check-external-types
-        run: cargo install -f cargo-check-external-types --root ${{ runner.tool_cache }}/cargo-check-external-types --locked --version "${CARGO_CHECK_EXTERNAL_TYPES_VERSION}"
+        run: cargo install -f cargo-check-external-types --root "${{ runner.tool_cache }}/cargo-check-external-types" --locked --version "${CARGO_CHECK_EXTERNAL_TYPES_VERSION}"
         if: steps.cache-cargo-check-external-types.outputs.cache-hit != 'true'
       - run: cargo check-external-types --all-features --config .external-types.toml ${{ inputs.args }}
