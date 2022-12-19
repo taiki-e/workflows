@@ -34,7 +34,8 @@ jobs:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add ${{ inputs.rust }} --no-self-update --profile minimal && rustup default ${{ inputs.rust }}
-      - run: cargo doc --workspace --all-features --document-private-items ${{ inputs.args }}
+      # docs.rs uses -Z rustdoc-scrape-examples since https://github.com/rust-lang/docs.rs/pull/1954
+      - run: cargo doc --workspace --all-features -Z unstable-options -Z rustdoc-scrape-examples --document-private-items ${{ inputs.args }}
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg docsrs
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs -Z unstable-options --document-hidden-items
