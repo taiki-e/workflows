@@ -31,6 +31,7 @@ jobs:
     env:
       CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.1.6
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
