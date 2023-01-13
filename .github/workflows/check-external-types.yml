@@ -28,8 +28,6 @@ defaults:
 
 jobs:
   check-external-types:
-    env:
-      CARGO_CHECK_EXTERNAL_TYPES_VERSION: 0.1.6
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -38,18 +36,7 @@ jobs:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add ${{ inputs.rust }} --no-self-update --profile minimal && rustup default ${{ inputs.rust }}
-      - name: Pre Cache cargo-check-external-types
-        run: |
-          mkdir -p .github/caching
-          echo "${CARGO_CHECK_EXTERNAL_TYPES_VERSION}" > .github/caching/cargo-check-external-types.lock
-          echo "${{ runner.tool_cache }}/cargo-check-external-types/bin" >> "${GITHUB_PATH}"
-      - name: Cache cargo-check-external-types
-        id: cache-cargo-check-external-types
-        uses: actions/cache@v3
+      - uses: taiki-e/cache-cargo-install-action@v1
         with:
-          path: ${{ runner.tool_cache }}/cargo-check-external-types/bin
-          key: cargo-check-external-types-bin-${{ hashFiles('.github/caching/cargo-check-external-types.lock') }}
-      - name: Install cargo-check-external-types
-        run: cargo install -f cargo-check-external-types --root "${{ runner.tool_cache }}/cargo-check-external-types" --locked --version "${CARGO_CHECK_EXTERNAL_TYPES_VERSION}"
-        if: steps.cache-cargo-check-external-types.outputs.cache-hit != 'true'
+          tool: cargo-check-external-types@0.1.6
       - run: cargo check-external-types --all-features --config .external-types.toml ${{ inputs.args }}
