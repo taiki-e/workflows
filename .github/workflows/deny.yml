@@ -36,6 +36,6 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add ${{ inputs.rust }} --no-self-update --profile minimal && rustup default ${{ inputs.rust }}
       - uses: taiki-e/install-action@cargo-deny
-      - uses: taiki-e/install-action@cargo-no-dev-deps
       # Workaround for https://github.com/EmbarkStudios/cargo-deny/issues/413
-      - run: cargo no-dev-deps deny --workspace --all-features ${{ inputs.args }} check --config .deny.toml
+      - uses: taiki-e/install-action@cargo-no-dev-deps
+      - run: cargo no-dev-deps deny --workspace --all-features ${{ inputs.args }} check
