@@ -8,6 +8,9 @@ on:
         required: false
         type: string
         default: nightly
+      target:
+        required: false
+        type: string
       args:
         required: false
         type: string
@@ -36,8 +39,12 @@ jobs:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add ${{ inputs.rust }} --no-self-update --profile minimal && rustup default ${{ inputs.rust }}
+      - run: |
+          rustup target add ${{ inputs.target }}
+          echo "TARGET=--target=${{ inputs.target }}" >>"${GITHUB_ENV}"
+        if: inputs.target != ''
       # docs.rs uses -Z rustdoc-scrape-examples since https://github.com/rust-lang/docs.rs/pull/1954
-      - run: cargo doc --workspace --all-features -Z unstable-options -Z rustdoc-scrape-examples --document-private-items ${{ inputs.args }}
+      - run: cargo doc --workspace --all-features -Z unstable-options -Z rustdoc-scrape-examples --document-private-items $TARGET ${{ inputs.args }}
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg docsrs
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs -Z unstable-options --document-hidden-items

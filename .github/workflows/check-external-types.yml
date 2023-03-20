@@ -9,6 +9,9 @@ on:
         required: false
         type: string
         default: nightly-2022-11-16
+      target:
+        required: false
+        type: string
       args:
         required: false
         type: string
@@ -37,7 +40,11 @@ jobs:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add ${{ inputs.rust }} --no-self-update --profile minimal && rustup default ${{ inputs.rust }}
+      - run: |
+          rustup target add ${{ inputs.target }}
+          echo "TARGET=--target=${{ inputs.target }}" >>"${GITHUB_ENV}"
+        if: inputs.target != ''
       - uses: taiki-e/cache-cargo-install-action@v1
         with:
           tool: cargo-check-external-types@0.1.6
-      - run: cargo check-external-types --all-features --config .external-types.toml ${{ inputs.args }}
+      - run: cargo check-external-types --all-features --config .external-types.toml $TARGET ${{ inputs.args }}
