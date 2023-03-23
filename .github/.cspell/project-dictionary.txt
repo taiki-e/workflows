@@ -1,3 +1,2 @@
-docsrs
 shellcheck
 shfmt
