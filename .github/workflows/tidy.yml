@@ -11,6 +11,10 @@ on:
       target:
         required: false
         type: string
+      clippy:
+        required: false
+        type: boolean
+        default: true
 
 env:
   CARGO_INCREMENTAL: 0
@@ -50,6 +54,6 @@ jobs:
       - uses: taiki-e/install-action@shfmt
       - run: pip3 install yq
       - run: cargo clippy --workspace --all-features --all-targets $TARGET
-        if: always() && steps.has-file.outputs.rust == 'true'
+        if: always() && steps.has-file.outputs.rust == 'true' && inputs.clippy == 'true'
       - run: tools/tidy.sh
         if: always()
