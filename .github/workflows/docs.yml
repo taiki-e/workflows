@@ -39,12 +39,52 @@ jobs:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add ${{ inputs.rust }} --no-self-update --profile minimal && rustup default ${{ inputs.rust }}
-      - run: |
-          rustup target add ${{ inputs.target }}
-          echo "TARGET=--target=${{ inputs.target }}" >>"${GITHUB_ENV}"
-        if: inputs.target != ''
-      # docs.rs uses -Z rustdoc-scrape-examples since https://github.com/rust-lang/docs.rs/pull/1954
-      - run: cargo doc --workspace --all-features -Z unstable-options -Z rustdoc-scrape-examples --document-private-items $TARGET ${{ inputs.args }}
+      # TODO: respect target field in docs.rs metadata if inputs.target is empty.
+      # TODO: move this script to its own file to apply shfmt and shellcheck.
+      - name: Run cargo doc
+        run: |
+          set -euo pipefail
+          # docs.rs uses -Z rustdoc-scrape-examples since https://github.com/rust-lang/docs.rs/pull/1954
+          args=(-Z unstable-options -Z rustdoc-scrape-examples --document-private-items ${{ inputs.args }})
+          IFS=$'\n\t'
+          # Handle target flags.
+          if [[ -n "${{ inputs.target }}" ]]; then
+            while read -rd,; do
+              args+=("--target=${REPLY}")
+              rustup target add "${REPLY}" || true # tier 3 targets fail to install rustup target
+            done <<<"${{ inputs.target }},"
+          fi
+          # Run cargo doc for public crates with features in docs.rs metadata in Cargo.toml.
+          metadata=$(cargo metadata --format-version=1 --all-features --no-deps)
+          for id in $(jq <<<"${metadata}" '.workspace_members[]'); do
+            pkg=$(jq <<<"${metadata}" ".packages[] | select(.id == ${id})")
+            publish=$(jq <<<"${pkg}" -r '.publish')
+            # Publishing is unrestricted if null, and forbidden if an empty array.
+            if [[ "${publish}" == "[]" ]]; then
+              continue
+            fi
+            manifest_path=$(jq <<<"${pkg}" -r '.manifest_path')
+            if [[ "$(jq <<<"${pkg}" '.metadata.docs.rs."all-features"')" == 'true' ]]; then
+              (
+                set -x
+                cargo doc --manifest-path "${manifest_path}" --all-features "${args[@]}"
+              )
+            elif [[ "$(jq <<<"${pkg}" '.metadata.docs.rs.features')" != null ]]; then
+              feature_flags=()
+              for feature in $(jq <<<"${pkg}" -r '.metadata.docs.rs.features[]'); do
+                  feature_flags+=(--features="${feature}")
+              done
+              (
+                set -x
+                cargo doc --manifest-path "${manifest_path}" "${feature_flags[@]}" "${args[@]}"
+              )
+            else
+              (
+                set -x
+                cargo doc --manifest-path "${manifest_path}" "${args[@]}"
+              )
+            fi
+          done
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg docsrs
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs -Z unstable-options --document-hidden-items
