@@ -73,6 +73,13 @@ jobs:
             fi
             manifest_path=$(jq <<<"${pkg}" -r '.manifest_path')
             args+=(--manifest-path="${manifest_path}")
+            manifest_dir=$(dirname "${manifest_path}")
+            if [[ -e "${manifest_dir}/.external-types.toml" ]]; then
+              args+=(--config "${manifest_dir}/.external-types.toml")
+            else
+              echo "info: not found .external-types.toml in ${manifest_dir}; using workspace top-level .external-types.toml"
+              args+=(--config .external-types.toml)
+            fi
             # TODO: check-external-types doesn't support --target flag
             # # Respect target-related fields specified in docs.rs metadata if inputs.target is empty.
             # if [[ -z "${input_target}" ]]; then
@@ -101,6 +108,6 @@ jobs:
             fi
             (
               set -x
-              cargo check-external-types --config .external-types.toml "${args[@]}"
+              cargo check-external-types "${args[@]}"
             )
           done
