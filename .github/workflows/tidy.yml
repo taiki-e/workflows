@@ -54,6 +54,6 @@ jobs:
       - uses: taiki-e/install-action@shfmt
       - run: pip3 install yq
       - run: cargo clippy --workspace --all-features --all-targets $TARGET
-        if: always() && steps.has-file.outputs.rust == 'true' && inputs.clippy == 'true'
+        if: always() && steps.has-file.outputs.rust == 'true' && inputs.clippy
       - run: tools/tidy.sh
         if: always()
