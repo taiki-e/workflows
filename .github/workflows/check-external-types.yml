@@ -83,7 +83,7 @@ jobs:
             # TODO: check-external-types doesn't support --target flag
             # # Respect target-related fields specified in docs.rs metadata if inputs.target is empty.
             # if [[ -z "${input_target}" ]]; then
-            #   default_target="$(jq <<<"${pkg}" '.metadata.docs.rs."default-target"')"
+            #   default_target=$(jq <<<"${pkg}" '.metadata.docs.rs."default-target"')
             #   if [[ "${default_target}" != null ]]; then
             #     args+=(--target="${default_target}")
             #     rustup target add "${default_target}" || true # tier 3 targets fail to install rustup target
