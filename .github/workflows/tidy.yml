@@ -55,5 +55,7 @@ jobs:
       - run: pip3 install yq
       - run: cargo clippy --workspace --all-features --all-targets $TARGET
         if: always() && steps.has-file.outputs.rust == 'true' && inputs.clippy
+      - run: cat tools/.tidy-check-license-headers
+        if: always()
       - run: tools/tidy.sh
         if: always()
