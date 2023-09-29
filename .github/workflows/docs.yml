@@ -44,7 +44,7 @@ jobs:
       # TODO: move this script to its own file to apply shfmt and shellcheck.
       - name: Run cargo doc
         run: |
-          set -euo pipefail
+          set -eEuo pipefail
           # docs.rs uses -Z rustdoc-scrape-examples since https://github.com/rust-lang/docs.rs/pull/1954
           base_args=(-Z unstable-options -Z rustdoc-scrape-examples --document-private-items ${{ inputs.args }})
           base_rustflags="${RUSTFLAGS:-}"

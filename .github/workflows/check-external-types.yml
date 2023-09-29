@@ -48,7 +48,7 @@ jobs:
       # TODO: move this script to its own file to apply shfmt and shellcheck.
       - name: Run cargo check-external-types
         run: |
-          set -euo pipefail
+          set -eEuo pipefail
           # docs.rs uses -Z rustdoc-scrape-examples since https://github.com/rust-lang/docs.rs/pull/1954
           base_args=(${{ inputs.args }})
           IFS=$'\n\t'
