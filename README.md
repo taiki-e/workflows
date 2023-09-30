@@ -1,9 +1,6 @@
 # Reusable Workflows
 
-This repository contains some [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows)
-used on CIs managed by @taiki-e.
-There are no stability guarantees for these workflows, since they're supposed to
-only be used in infra managed by us.
+**This repository has been merged into <https://github.com/taiki-e/github-actions>**. (All reusable workflows have also been moved there.)
 
 ## License
 
